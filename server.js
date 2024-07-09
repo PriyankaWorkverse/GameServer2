@@ -7,7 +7,7 @@ require('dotenv').config();
 const app = express();
 
 const corsOptions = {
-    origin: 'https://your-react-app-domain.com',
+    origin: 'https://master.dx5gzb28eanaz.amplifyapp.com',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   };
   
