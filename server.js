@@ -6,12 +6,18 @@ require('dotenv').config();
 
 const app = express();
 
+const corsOptions = {
+    origin: 'https://your-react-app-domain.com',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  };
+  
+app.use(cors(corsOptions));
+app.use(bodyParser.json());
+
 const PORT = process.env.PORT || 80;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// Middleware
-app.use(bodyParser.json());
-app.use(cors());
+
 
 // MongoDB connection
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
