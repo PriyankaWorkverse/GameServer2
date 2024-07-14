@@ -6,9 +6,19 @@ require('dotenv').config();
 
 const app = express();
 
-// Use cors middleware
-app.use(cors());
+const corsOptions = {
+  origin: 'https://signup.xbsl.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
+
+app.use((req, res, next) => {
+  res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade');
+  next();
+});
 
 const PORT = process.env.PORT || 80;
 const MONGODB_URI = process.env.MONGODB_URI;
