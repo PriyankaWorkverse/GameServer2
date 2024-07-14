@@ -43,9 +43,8 @@ const FormDataSchema = new mongoose.Schema({
 const FormData = mongoose.model('FormData', FormDataSchema);
 
 // Routes
-app.post('/api/user/:playerId', async (req, res) => {
-  const playerId = req.params.playerId;
-  const formData = new FormData({ ...req.body, playerId });
+app.post('/api/user', async (req, res) => {
+  const formData = new FormData({ ...req.body });
 
   try {
     const savedFormData = await formData.save();
