@@ -6,18 +6,12 @@ require('dotenv').config();
 
 const app = express();
 
-const corsOptions = {
-    origin: 'https://master.dx5gzb28eanaz.amplifyapp.com',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  };
-  
-app.use(cors(corsOptions));
+// Use cors middleware
+app.use(cors());
 app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 80;
 const MONGODB_URI = process.env.MONGODB_URI;
-
-
 
 // MongoDB connection
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
