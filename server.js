@@ -6,22 +6,12 @@ require('dotenv').config();
 
 const app = express();
 
-const corsOptions = {
-  origin: 'https://signup.xbsl.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-app.use(bodyParser.json());
-
-app.use((req, res, next) => {
-  res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade');
-  next();
-});
-
 const PORT = process.env.PORT || 8080;
 const MONGODB_URI = process.env.MONGODB_URI;
+
+// Middleware
+app.use(bodyParser.json());
+app.use(cors());
 
 // MongoDB connection
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -53,8 +43,9 @@ const FormDataSchema = new mongoose.Schema({
 const FormData = mongoose.model('FormData', FormDataSchema);
 
 // Routes
-app.post('/api/user', async (req, res) => {
-  const formData = new FormData({ ...req.body });
+app.post('/api/user/:playerId', async (req, res) => {
+  const playerId = req.params.playerId;
+  const formData = new FormData({ ...req.body, playerId });
 
   try {
     const savedFormData = await formData.save();
