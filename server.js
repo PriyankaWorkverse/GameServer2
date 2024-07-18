@@ -41,7 +41,9 @@ const FormDataSchema = new mongoose.Schema({
 }, { collection: 'UserInfo' });
 
 const FormData = mongoose.model('FormData', FormDataSchema);
-
+app.get("/", (req, res) => {
+  res.send("Hello from http server");
+});
 // Routes
 app.post('/api/user/:playerId', async (req, res) => {
   const playerId = req.params.playerId;
