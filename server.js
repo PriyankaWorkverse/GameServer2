@@ -4,19 +4,22 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
 
-const app1 = express();
-const PORT1 = process.env.PORT1 || 8000;
+const app = express();
 
-app1.use(express.json());
-app1.use(cors());
+const PORT = process.env.PORT || 8080;
+const MONGODB_URI = process.env.MONGODB_URI;
 
+// Middleware
+app.use(bodyParser.json());
+app.use(cors());
+
+// MongoDB connection
 mongoose
-  .connect(process.env.DATABASE, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("Connected to MongoDB for WIP"))
-  .catch((err) => console.error("Error connecting to MongoDB for WIP:", err));
+  .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log(err));
+
+//-------------------------WIP---------------------------------------
 
 const TrainingStatisticsSchema = new mongoose.Schema({
   workplacetackled: Number,
@@ -46,61 +49,33 @@ const SoftSkillsSchema = new mongoose.Schema({
   exceptional: String,
 });
 
+// Define badges schema
 const BadgesSchema = new mongoose.Schema({
   smartprofessional: Boolean,
   futuremanager: Boolean,
   ceoinmaking: Boolean,
 });
 
-const wipSchema = new mongoose.Schema({
-  wip_id: { type: String },
-  name: { type: String },
-  designation: { type: String },
-  organization: { type: String },
-  profileSummary: String,
-  trainingStatistics: TrainingStatisticsSchema,
-  analysis: { type: [String] },
-  badges: BadgesSchema,
-  ceoInMaking: Boolean,
-  uniqueTraits: { type: [Boolean] },
-  softskills: SoftSkillsSchema,
-});
+const wipSchema = new mongoose.Schema(
+  {
+    wip_id: { type: String },
+    name: { type: String },
+    designation: { type: String },
+    organization: { type: String },
+    profileSummary: String,
+    trainingStatistics: TrainingStatisticsSchema,
+    analysis: { type: [String] },
+    badges: BadgesSchema,
+    ceoInMaking: Boolean,
+    uniqueTraits: { type: [Boolean] },
+    softskills: SoftSkillsSchema,
+  },
+  { collection: "wip" }
+);
 
 const WIP = mongoose.model("WIP", wipSchema);
 
-app1.get("/wip", async (req, res) => {
-  try {
-    const wipData = await WIP.find();
-    res.status(200).json(wipData);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app1.listen(PORT1, () => {
-  console.log(`Server for WIP running on port ${PORT1}`);
-});
-
-// 
-// Second application for FormData
-// 
-const app2 = express();
-const PORT2 = process.env.PORT2 || 8080;
-
-app2.use(bodyParser.json());
-app2.use(cors());
-
-const secondDB = mongoose.createConnection(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-secondDB.on("connected", () =>
-  console.log("Connected to MongoDB for FormData")
-);
-secondDB.on("error", (err) =>
-  console.error("Error connecting to MongoDB for FormData:", err)
-);
-
+// ------------------------Signup-------------------------------
 const FormDataSchema = new mongoose.Schema(
   {
     firstName: String,
@@ -127,12 +102,16 @@ const FormDataSchema = new mongoose.Schema(
   { collection: "UserInfo" }
 );
 
-const FormData = secondDB.model("FormData", FormDataSchema);
+const FormData = mongoose.model("FormData", FormDataSchema);
+app.get("/", (req, res) => {
+  res.send("Hello from http server");
+});
 
-app2.post("/api/user/:playerId", async (req, res) => {
+// -----------------------Signup--------------------------------
+
+app.post("/api/user/:playerId", async (req, res) => {
   const playerId = req.params.playerId;
   const formData = new FormData({ ...req.body, playerId });
-
   try {
     const savedFormData = await formData.save();
     res.status(201).json(savedFormData);
@@ -141,10 +120,19 @@ app2.post("/api/user/:playerId", async (req, res) => {
   }
 });
 
-app2.get("/", (req, res) => {
-  res.send("Hello from HTTP server");
-});
+// -----------------------WIP--------------------------------
 
-app2.listen(PORT2, () => {
-  console.log(`Server for FormData running on port ${PORT2}`);
+app.get("/api/user/wip", async (req, res) => {
+  try {
+    const wipData = await WIP.find();
+    res.status(200).json(wipData);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// -------------------------------------------------------
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
