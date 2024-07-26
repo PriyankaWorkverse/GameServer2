@@ -37,7 +37,9 @@ const FormDataSchema = new mongoose.Schema({
   designation: String,
   highestEducation: String,
   gameLiteracy: String,
-  playerId: String
+  playerId: String,
+  locationState: String,
+  originState: String
 }, { collection: 'UserInfo' });
 
 const FormData = mongoose.model('FormData', FormDataSchema);
