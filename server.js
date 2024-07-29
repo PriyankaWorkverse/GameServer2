@@ -102,6 +102,13 @@ const FormDataSchema = new mongoose.Schema(
   { collection: "UserInfo" }
 );
 
+const generalSaveDataSchema = new mongoose.Schema({
+  playerId: { type: String, required: true },
+  registered: { type: Number, default: 0 },
+}, { collection: "GeneralSaveData" });
+
+const GeneralSaveData = mongoose.model('GeneralSaveData', generalSaveDataSchema);
+
 const FormData = mongoose.model("FormData", FormDataSchema);
 app.get("/", (req, res) => {
   res.send("Hello from http server");
