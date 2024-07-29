@@ -114,6 +114,11 @@ app.post("/api/user/:playerId", async (req, res) => {
   const formData = new FormData({ ...req.body, playerId });
   try {
     const savedFormData = await formData.save();
+    await GeneralSaveData.updateOne(
+      { playerId: playerId },
+      { $set: { registered: 1 } },
+      { upsert: true }
+    );
     res.status(201).json(savedFormData);
   } catch (err) {
     res.status(400).json({ error: err.message });
