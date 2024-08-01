@@ -110,7 +110,7 @@ const UserInfo = mongoose.model('UserInfo', UserInfoSchema);
 
 app.post("/api/user/:playerId", async (req, res) => {
   const playerId = req.params.playerId;
-  const formData = { ...req.body, playerId };
+  const formData = { ...req.body, playerId, registered: 1 };
 
   try {
     const existingUser = await UserInfo.findOne({ playerId });
@@ -119,7 +119,6 @@ app.post("/api/user/:playerId", async (req, res) => {
       // Update the existing document
       await UserInfo.updateOne(
         { playerId: playerId },
-        { $set: { registered: 1 } },
         { $set: formData }
       );
       res.status(200).json({ message: "User data updated successfully" });
