@@ -98,16 +98,17 @@ const FormDataSchema = new mongoose.Schema(
     playerId: String,
     locationState: String,
     originState: String,
+    registered: Number
   },
   { collection: "UserInfo" }
 );
 
-const generalSaveDataSchema = new mongoose.Schema({
-  playerId: { type: String, required: true },
-  registered: { type: Number, default: 0 },
-}, { collection: "GeneralSaveData" });
+// const generalSaveDataSchema = new mongoose.Schema({
+//   playerId: { type: String, required: true },
+//   registered: { type: Number, default: 0 },
+// }, { collection: "GeneralSaveData" });
 
-const GeneralSaveData = mongoose.model('GeneralSaveData', generalSaveDataSchema);
+// const GeneralSaveData = mongoose.model('GeneralSaveData', generalSaveDataSchema);
 
 const FormData = mongoose.model("FormData", FormDataSchema);
 app.get("/", (req, res) => {
@@ -121,7 +122,7 @@ app.post("/api/user/:playerId", async (req, res) => {
   const formData = new FormData({ ...req.body, playerId });
   try {
     const savedFormData = await formData.save();
-    await GeneralSaveData.updateOne(
+    await UserInfo.updateOne(
       { playerId: playerId },
       { $set: { registered: 1 } },
       { upsert: true }
