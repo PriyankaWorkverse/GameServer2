@@ -97,18 +97,17 @@ const FormDataSchema = new mongoose.Schema(
     gameLiteracy: String,
     playerId: String,
     locationState: String,
-    originState: String,
-    registered: Number
+    originState: String
   },
   { collection: "UserInfo" }
 );
 
-// const generalSaveDataSchema = new mongoose.Schema({
-//   playerId: { type: String, required: true },
-//   registered: { type: Number, default: 0 },
-// }, { collection: "GeneralSaveData" });
+const UserInfoSchema = new mongoose.Schema({
+  playerId: { type: String, required: true },
+  registered: { type: Number, default: 0 },
+}, { collection: "UserInfo" });
 
-// const GeneralSaveData = mongoose.model('GeneralSaveData', generalSaveDataSchema);
+const UserInfo = mongoose.model('UserInfo', UserInfoSchema);
 
 const FormData = mongoose.model("FormData", FormDataSchema);
 app.get("/", (req, res) => {
