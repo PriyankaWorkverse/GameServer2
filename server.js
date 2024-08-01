@@ -19,6 +19,11 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
+  const FormData = mongoose.model("FormData", FormDataSchema);
+  app.get("/", (req, res) => {
+    res.send("Hello from http server");
+  });
+
 //-------------------------WIP---------------------------------------
 
 const TrainingStatisticsSchema = new mongoose.Schema({
@@ -76,57 +81,55 @@ const wipSchema = new mongoose.Schema(
 const WIP = mongoose.model("WIP", wipSchema);
 
 // ------------------------Signup-------------------------------
-const FormDataSchema = new mongoose.Schema(
-  {
-    firstName: String,
-    lastName: String,
-    gender: String,
-    dob: Date,
-    location: String,
-    cityOfOrigin: String,
-    currentStatus: String,
-    collegeName: String,
-    collegeNameLast: String,
-    currentYear: Number,
-    course: String,
-    courseLast: String,
-    industry: String,
-    passoutYear: Number,
-    designation: String,
-    highestEducation: String,
-    gameLiteracy: String,
-    playerId: String,
-    locationState: String,
-    originState: String
-  },
-  { collection: "UserInfo" }
-);
-
 const UserInfoSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  gender: String,
+  dob: Date,
+  location: String,
+  cityOfOrigin: String,
+  currentStatus: String,
+  collegeName: String,
+  collegeNameLast: String,
+  currentYear: Number,
+  course: String,
+  courseLast: String,
+  industry: String,
+  passoutYear: Number,
+  designation: String,
+  highestEducation: String,
+  gameLiteracy: String,
   playerId: { type: String, required: true },
+  locationState: String,
+  originState: String,
   registered: { type: Number, default: 0 },
 }, { collection: "UserInfo" });
 
 const UserInfo = mongoose.model('UserInfo', UserInfoSchema);
 
-const FormData = mongoose.model("FormData", FormDataSchema);
-app.get("/", (req, res) => {
-  res.send("Hello from http server");
-});
-
 // -----------------------Signup--------------------------------
 
 app.post("/api/user/:playerId", async (req, res) => {
   const playerId = req.params.playerId;
-  const formData = new FormData({ ...req.body, playerId });
+  const formData = { ...req.body, playerId };
+
   try {
-    const savedFormData = await formData.save();
-    await UserInfo.updateOne(
-      { playerId: playerId },
-      { $set: { registered: 1 } },
-      { upsert: true }
-    );
-    res.status(201).json(savedFormData);
+    const existingUser = await UserInfo.findOne({ playerId });
+
+    if (existingUser) {
+      // Update the existing document
+      await UserInfo.updateOne(
+        { playerId: playerId },
+        { $set: { registered: 1 } },
+        { $set: formData }
+      );
+      res.status(200).json({ message: "User data updated successfully" });
+    } else {
+      // Create a new document
+      const newUser = new UserInfo(formData);
+      const savedUser = await newUser.save();
+      res.status(201).json(savedUser);
+    }
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
