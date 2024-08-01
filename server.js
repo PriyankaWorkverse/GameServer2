@@ -19,7 +19,6 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-  const FormData = mongoose.model("FormData", FormDataSchema);
   app.get("/", (req, res) => {
     res.send("Hello from http server");
   });
