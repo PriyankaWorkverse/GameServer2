@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+var csv = require("csv");
+const fs = require("fs");
 require("dotenv").config();
 
 const app = express();
@@ -19,9 +21,9 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-  app.get("/", (req, res) => {
-    res.send("Hello from http server");
-  });
+app.get("/", (req, res) => {
+  res.send("Hello from http server");
+});
 
 //-------------------------WIP---------------------------------------
 
@@ -33,6 +35,17 @@ const TrainingStatisticsSchema = new mongoose.Schema({
 });
 
 const SoftSkillsSchema = new mongoose.Schema({
+  skills: {
+    creativeProblemSolving: Number,
+    entrepreneurialMindset: Number,
+    Negotiation: Number,
+    storyTelling: Number,
+    firstPrinciplesThinking: Number,
+    emotionalIntelligence: Number,
+    Collaboration: Number,
+    sharpRemoteCommunication: Number,
+    productivityManagement: Number,
+  },
   smartestAlternative: {
     capable: Number,
     impressive: Number,
@@ -63,6 +76,7 @@ const BadgesSchema = new mongoose.Schema({
 const wipSchema = new mongoose.Schema(
   {
     wip_id: { type: String },
+    playerURL: { type: String },
     name: { type: String },
     designation: { type: String },
     organization: { type: String },
@@ -71,6 +85,7 @@ const wipSchema = new mongoose.Schema(
     analysis: { type: [String] },
     badges: BadgesSchema,
     ceoInMaking: Boolean,
+    jobFunction: { type: [Boolean] },
     uniqueTraits: { type: [Boolean] },
     softskills: SoftSkillsSchema,
   },
@@ -80,31 +95,35 @@ const wipSchema = new mongoose.Schema(
 const WIP = mongoose.model("WIP", wipSchema);
 
 // ------------------------Signup-------------------------------
-const UserInfoSchema = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
-  gender: String,
-  dob: Date,
-  location: String,
-  cityOfOrigin: String,
-  currentStatus: String,
-  collegeName: String,
-  collegeNameLast: String,
-  currentYear: Number,
-  course: String,
-  courseLast: String,
-  industry: String,
-  passoutYear: Number,
-  designation: String,
-  highestEducation: String,
-  gameLiteracy: String,
-  playerId: { type: String, required: true },
-  locationState: String,
-  originState: String,
-  registered: { type: Number, default: 0 },
-}, { collection: "UserInfo" });
+const UserInfoSchema = new mongoose.Schema(
+  {
+    firstName: String,
+    lastName: String,
+    gender: String,
+    dob: Date,
+    location: String,
+    cityOfOrigin: String,
+    currentStatus: String,
+    collegeName: String,
+    collegeNameLast: String,
+    currentYear: Number,
+    course: String,
+    courseLast: String,
+    industry: String,
+    passoutYear: Number,
+    yearOfExp: Number,
+    designation: String,
+    highestEducation: String,
+    gameLiteracy: String,
+    playerId: { type: String, required: true },
+    locationState: String,
+    originState: String,
+    registered: { type: Number, default: 0 },
+  },
+  { collection: "UserInfo" }
+);
 
-const UserInfo = mongoose.model('UserInfo', UserInfoSchema);
+const UserInfo = mongoose.model("UserInfo", UserInfoSchema);
 
 // -----------------------Signup--------------------------------
 
@@ -117,10 +136,7 @@ app.post("/api/user/:playerId", async (req, res) => {
 
     if (existingUser) {
       // Update the existing document
-      await UserInfo.updateOne(
-        { playerId: playerId },
-        { $set: formData }
-      );
+      await UserInfo.updateOne({ playerId: playerId }, { $set: formData });
       res.status(200).json({ message: "User data updated successfully" });
     } else {
       // Create a new document
@@ -131,6 +147,53 @@ app.post("/api/user/:playerId", async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+});
+
+let colleges = [];
+
+fs.readFile("db/database.csv", "utf8", (err, data) => {
+  if (err) {
+    console.error("Error reading the CSV file:", err);
+    return;
+  }
+
+  const lines = data.split("\n");
+
+  lines.forEach((line, index) => {
+    if (index === 0) {
+      // console.log("Header:", line);
+      return;
+    }
+
+    let collegeName = line.trim();
+
+    if (collegeName.startsWith('"') && collegeName.endsWith('"')) {
+      collegeName = collegeName.slice(1, -1);
+    }
+
+    collegeName = collegeName.replace(/\\/g, "");
+
+    collegeName = collegeName.replace(/^["']+|["']+$/g, "");
+
+    collegeName = collegeName.trim();
+
+    if (collegeName) {
+      colleges.push(collegeName);
+    }
+  });
+
+  // console.log("CSV Loaded!");
+});
+
+app.get("/colleges", (req, res) => {
+  const query = req.query.q ? req.query.q.toLowerCase() : "";
+  const filteredColleges = colleges.filter((college) =>
+    college.toLowerCase().includes(query)
+  );
+  if (filteredColleges.length === 0) {
+    return res.status(404).json({ error: "No college data available" });
+  }
+  res.json(filteredColleges);
 });
 
 // -----------------------WIP--------------------------------
