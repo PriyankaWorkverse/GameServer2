@@ -185,7 +185,7 @@ fs.readFile("db/database.csv", "utf8", (err, data) => {
   // console.log("CSV Loaded!");
 });
 
-app.get("/colleges", (req, res) => {
+app.get("/api/user/colleges", (req, res) => {
   const query = req.query.q ? req.query.q.toLowerCase() : "";
   const filteredColleges = colleges.filter((college) =>
     college.toLowerCase().includes(query)
