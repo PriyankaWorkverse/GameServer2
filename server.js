@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-var csv = require("csv");
+// var csv = require("csv");
 const fs = require("fs");
 require("dotenv").config();
 
@@ -206,7 +206,7 @@ app.get("/api/user/colleges", async (req, res) => {
     }).limit(10); // Limit results to 10
 
     if (filteredColleges.length === 0) {
-      return res.status(404).json({ error: "No college data available" });
+      return res.status(201).json({ error: "No college data available" });
     }
 
     res.json(filteredColleges.map((college) => college.name));
