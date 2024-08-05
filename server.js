@@ -107,7 +107,7 @@ const UserInfoSchema = new mongoose.Schema(
     collegeName: String,
     collegeNameLast: String,
     currentYear: Number,
-    course: String,
+    cours: String,
     courseLast: String,
     industry: String,
     passoutYear: Number,
@@ -149,51 +149,71 @@ app.post("/api/user/:playerId", async (req, res) => {
   }
 });
 
-let colleges = [];
+// --------------college list---------------
 
-fs.readFile("db/database.csv", "utf8", (err, data) => {
-  if (err) {
-    console.error("Error reading the CSV file:", err);
-    return;
-  }
+const collegeSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+  },
+  { collection: "collegeList" }
+);
 
-  const lines = data.split("\n");
+const College = mongoose.model("College", collegeSchema);
 
-  lines.forEach((line, index) => {
-    if (index === 0) {
-      // console.log("Header:", line);
-      return;
-    }
+// fs.readFile("db/database.csv", "utf8", async (err, data) => {
+//   if (err) {
+//     console.error("Error reading the CSV file:", err);
+//     return;
+//   }
 
-    let collegeName = line.trim();
+//   const lines = data.split("\n");
+//   const colleges = [];
 
-    if (collegeName.startsWith('"') && collegeName.endsWith('"')) {
-      collegeName = collegeName.slice(1, -1);
-    }
+//   lines.forEach((line, index) => {
+//     if (index === 0) return; // Skip header
 
-    collegeName = collegeName.replace(/\\/g, "");
+//     let collegeName = line.trim();
 
-    collegeName = collegeName.replace(/^["']+|["']+$/g, "");
+//     if (collegeName.startsWith('"') && collegeName.endsWith('"')) {
+//       collegeName = collegeName.slice(1, -1);
+//     }
 
-    collegeName = collegeName.trim();
+//     collegeName = collegeName.replace(/\\/g, "");
+//     collegeName = collegeName.replace(/^["']+|["']+$/g, "");
+//     collegeName = collegeName.trim();
 
-    if (collegeName) {
-      colleges.push(collegeName);
-    }
-  });
+//     if (collegeName) {
+//       colleges.push({ name: collegeName });
+//     }
+//   });
 
-  // console.log("CSV Loaded!");
-});
+//   try {
+//     await College.insertMany(colleges);
+//     console.log("CSV data successfully imported to database");
+//   } catch (err) {
+//     console.error("Error importing data to database:", err);
+//   } finally {
+//     mongoose.connection.close();
+//   }
+// });
 
-app.get("/api/user/colleges", (req, res) => {
+app.get("/api/user/colleges", async (req, res) => {
   const query = req.query.q ? req.query.q.toLowerCase() : "";
-  const filteredColleges = colleges.filter((college) =>
-    college.toLowerCase().includes(query)
-  );
-  if (filteredColleges.length === 0) {
-    return res.status(404).json({ error: "No college data available" });
+
+  try {
+    const filteredColleges = await College.find({
+      name: { $regex: query, $options: "i" }, // Case-insensitive search
+    }).limit(10); // Limit results to 10
+
+    if (filteredColleges.length === 0) {
+      return res.status(404).json({ error: "No college data available" });
+    }
+
+    res.json(filteredColleges.map((college) => college.name));
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-  res.json(filteredColleges);
 });
 
 // -----------------------WIP--------------------------------
