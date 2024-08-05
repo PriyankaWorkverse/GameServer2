@@ -107,7 +107,7 @@ const UserInfoSchema = new mongoose.Schema(
     collegeName: String,
     collegeNameLast: String,
     currentYear: Number,
-    cours: String,
+    course: String,
     courseLast: String,
     industry: String,
     passoutYear: Number,
