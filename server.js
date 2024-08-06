@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 // var csv = require("csv");
-const fs = require("fs");
+// const fs = require("fs");
 require("dotenv").config();
 
 const app = express();
@@ -152,9 +152,7 @@ app.post("/api/user/:playerId", async (req, res) => {
 // --------------college list---------------
 
 const collegeSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-  },
+  { colleges: [String] }, // Array of strings
   { collection: "collegeList" }
 );
 
@@ -172,7 +170,7 @@ const College = mongoose.model("College", collegeSchema);
 //   lines.forEach((line, index) => {
 //     if (index === 0) return; // Skip header
 
-//     let collegeName = line.trim();
+//     let collegeName = line.split(" (Id:")[0].trim(); // Remove ID part
 
 //     if (collegeName.startsWith('"') && collegeName.endsWith('"')) {
 //       collegeName = collegeName.slice(1, -1);
@@ -183,12 +181,17 @@ const College = mongoose.model("College", collegeSchema);
 //     collegeName = collegeName.trim();
 
 //     if (collegeName) {
-//       colleges.push({ name: collegeName });
+//       colleges.push(collegeName);
 //     }
 //   });
 
 //   try {
-//     await College.insertMany(colleges);
+//     // Upsert to ensure we either update or insert a document
+//     await College.findOneAndUpdate(
+//       {}, // Empty query to match any document
+//       { colleges: colleges }, // Update with new array
+//       { upsert: true } // Create the document if it doesn't exist
+//     );
 //     console.log("CSV data successfully imported to database");
 //   } catch (err) {
 //     console.error("Error importing data to database:", err);
@@ -201,15 +204,20 @@ app.get("/api/user/colleges", async (req, res) => {
   const query = req.query.q ? req.query.q.toLowerCase() : "";
 
   try {
-    const filteredColleges = await College.find({
-      name: { $regex: query, $options: "i" }, // Case-insensitive search
-    }).limit(10); // Limit results to 10
-
-    if (filteredColleges.length === 0) {
+    const doc = await College.findOne();
+    if (!doc) {
       return res.status(201).json({ error: "No college data available" });
     }
 
-    res.json(filteredColleges.map((college) => college.name));
+    const filteredColleges = doc.colleges.filter((college) =>
+      college.toLowerCase().includes(query)
+    );
+
+    if (filteredColleges.length === 0) {
+      return res.json({ colleges: ["Other"], other: true });
+    }
+
+    res.json({ colleges: filteredColleges, other: false });
   } catch (err) {
     console.error("Error fetching data:", err);
     res.status(500).json({ error: "Internal Server Error" });
