@@ -31,6 +31,8 @@ const TrainingStatisticsSchema = new mongoose.Schema({
   workplacetackled: Number,
   uniquemodels: Number,
   personalities: Number,
+  professionalemails: Number,
+  kamaitoken: Number,
   workplacesimulation: Number,
 });
 
