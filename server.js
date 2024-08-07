@@ -213,11 +213,12 @@ app.get("/api/user/colleges", async (req, res) => {
       college.toLowerCase().includes(query)
     );
 
-    if (filteredColleges.length === 0) {
-      return res.json({ colleges: ["Other"], other: true });
-    }
+    filteredColleges.push("Other");
 
-    res.json({ colleges: filteredColleges, other: false });
+    res.json({
+      colleges: filteredColleges,
+      other: filteredColleges.length === 1,
+    });
   } catch (err) {
     console.error("Error fetching data:", err);
     res.status(500).json({ error: "Internal Server Error" });
