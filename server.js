@@ -27,13 +27,19 @@ app.get("/", (req, res) => {
 
 //-------------------------WIP---------------------------------------
 
-const TrainingStatisticsSchema = new mongoose.Schema({
+const LearningExperienceSchema = new mongoose.Schema({
   workplacetackled: Number,
   uniquemodels: Number,
   personalities: Number,
   professionalemails: Number,
   kamaitoken: Number,
   workplacesimulation: Number,
+  workplacetackledDesc: String,
+  uniquemodelsDesc: String,
+  personalitiesDesc: String,
+  professionalemailsDesc: String,
+  kamaitokenDesc: String,
+  workplacesimulationDesc: String,
 });
 
 const SoftSkillsSchema = new mongoose.Schema({
@@ -75,6 +81,11 @@ const BadgesSchema = new mongoose.Schema({
   ceoinmaking: Boolean,
 });
 
+const WorkplaceBehaviorSchema = new mongoose.Schema({
+  attentiontodetail: Number,
+  applicationofcommonsense: Number,
+});
+
 const wipSchema = new mongoose.Schema(
   {
     wip_id: { type: String },
@@ -83,7 +94,8 @@ const wipSchema = new mongoose.Schema(
     designation: { type: String },
     organization: { type: String },
     profileSummary: String,
-    trainingStatistics: TrainingStatisticsSchema,
+    learningExperience: LearningExperienceSchema,
+    workplaceBehaviors: WorkplaceBehaviorSchema,
     analysis: { type: [String] },
     badges: BadgesSchema,
     ceoInMaking: Boolean,
