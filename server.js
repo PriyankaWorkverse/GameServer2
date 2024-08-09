@@ -88,10 +88,25 @@ const WorkplaceBehaviorSchema = new mongoose.Schema({
   application_of_common_sense: Number,
 });
 
-const analysisSchema = new mongoose.Schema({
-  approach_to_work: { type: [String] },
-  key_traits: { type: [String] },
+const jobFunctionSchema = new mongoose.Schema({
+  job_function: { type: String, required: true },
+  description: { type: String, required: true },
 });
+
+const analysisSchema = new mongoose.Schema({
+  approach_to_work: {
+    strengths: { type: [String], default: [] },
+    to_improve: { type: [String], default: [] },
+  },
+  key_traits: {
+    strengths: { type: [String], default: [] },
+    to_improve: { type: [String], default: [] },
+  },
+});
+
+// const jobFunctionSchema = new mongoose.Schema({
+
+// });
 
 const wipSchema = new mongoose.Schema(
   {
@@ -106,7 +121,7 @@ const wipSchema = new mongoose.Schema(
     analysis: analysisSchema,
     badges: BadgesSchema,
     ceoInMaking: Boolean,
-    jobFunction: { type: [Boolean] },
+    jobFunction: { type: [jobFunctionSchema], default: [] },
     uniqueTraits: { type: [Boolean] },
     softskills: SoftSkillsSchema,
   },
@@ -248,14 +263,21 @@ app.get("/api/user/colleges", async (req, res) => {
 
 // -----------------------WIP--------------------------------
 
-app.get("/api/user/wip", async (req, res) => {
+app.get("/api/user/wip/:wipId", async (req, res) => {
   try {
-    const wipData = await WIP.find();
+    const { wipId } = req.params;
+    const wipData = await WIP.findOne({ wip_id: wipId });
+
+    if (!wipData) {
+      return res.status(404).json({ error: "Data not found" });
+    }
+
     res.status(200).json(wipData);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 // -------------------------------------------------------
 
 // Start server
