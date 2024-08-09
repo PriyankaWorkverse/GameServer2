@@ -28,38 +28,40 @@ app.get("/", (req, res) => {
 //-------------------------WIP---------------------------------------
 
 const LearningExperienceSchema = new mongoose.Schema({
-  workplacetackled: Number,
-  uniquemodels: Number,
+  workplace_tackled: Number,
+  unique_models: Number,
   personalities: Number,
-  professionalemails: Number,
-  kamaitoken: Number,
-  workplacesimulation: Number,
-  workplacetackledDesc: String,
-  uniquemodelsDesc: String,
-  personalitiesDesc: String,
-  professionalemailsDesc: String,
-  kamaitokenDesc: String,
-  workplacesimulationDesc: String,
+  professional_emails: Number,
+  kamai_token: Number,
+  workplace_simulation: Number,
+  workplace_tackled_Desc: String,
+  unique_models_Desc: String,
+  personalities_Desc: String,
+  professional_emails_Desc: String,
+  kamai_token_Desc: String,
+  workplace_simulation_Desc: String,
 });
 
 const SoftSkillsSchema = new mongoose.Schema({
   skills: {
-    creativeProblemSolving: Number,
-    entrepreneurialMindset: Number,
+    creative_Problem_Solving: Number,
+    entrepreneurial_Mindset: Number,
     Negotiation: Number,
-    storyTelling: Number,
-    firstPrinciplesThinking: Number,
-    emotionalIntelligence: Number,
+    story_Telling: Number,
+    first_Principles_Thinking: Number,
+    emotional_Intelligence: Number,
     Collaboration: Number,
-    sharpRemoteCommunication: Number,
-    productivityManagement: Number,
+    sharpRemote_Communication: Number,
+    productivity_Management: Number,
   },
   smartestAlternative: {
+    total_score: Number,
     capable: Number,
     impressive: Number,
     exceptional: Number,
   },
   existingIdeas: {
+    total_score: Number,
     capable: Number,
     impressive: Number,
     exceptional: Number,
@@ -76,14 +78,19 @@ const SoftSkillsSchema = new mongoose.Schema({
 
 // Define badges schema
 const BadgesSchema = new mongoose.Schema({
-  smartprofessional: Boolean,
-  futuremanager: Boolean,
-  ceoinmaking: Boolean,
+  smart_professional: Boolean,
+  future_manager: Boolean,
+  ceo_in_making: Boolean,
 });
 
 const WorkplaceBehaviorSchema = new mongoose.Schema({
-  attentiontodetail: Number,
-  applicationofcommonsense: Number,
+  attention_to_detail: Number,
+  application_of_common_sense: Number,
+});
+
+const analysisSchema = new mongoose.Schema({
+  approach_to_work: { type: [String] },
+  key_traits: { type: [String] },
 });
 
 const wipSchema = new mongoose.Schema(
@@ -96,7 +103,7 @@ const wipSchema = new mongoose.Schema(
     profileSummary: String,
     learningExperience: LearningExperienceSchema,
     workplaceBehaviors: WorkplaceBehaviorSchema,
-    analysis: { type: [String] },
+    analysis: analysisSchema,
     badges: BadgesSchema,
     ceoInMaking: Boolean,
     jobFunction: { type: [Boolean] },
