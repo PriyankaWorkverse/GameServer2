@@ -32,7 +32,8 @@ app.get("/", (req, res) => {
 
 const GeneralSaveDataSchema = new mongoose.Schema(
   {
-    kamai: { type: Number }
+    kamai: { type: Number },
+    playerBadgeData: { type: [String] },
   },
   { collection: "GeneralSaveData" }
 );
@@ -290,8 +291,8 @@ app.get("/api/user/kamai/:wipId", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { kamai } = GeneralSaveDataKamai;
-    return res.json({ kamai });
+    const { kamai, playerBadgeData } = GeneralSaveDataKamai;
+    return res.json({ kamai , playerBadgeData});
 
   } catch (error) {
     console.error("Error fetching kamai data:", error);
