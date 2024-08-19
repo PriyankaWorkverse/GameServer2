@@ -28,6 +28,17 @@ app.get("/", (req, res) => {
 
 //-------------------------WIP---------------------------------------
 
+
+
+const GeneralSaveDataSchema = new mongoose.Schema(
+  {
+    kamai: { type: Number }
+  },
+  { collection: "GeneralSaveData" }
+);
+
+const GeneralSaveData = mongoose.model("GeneralSaveData", GeneralSaveDataSchema);
+
 const TrainingStatisticsSchema = new mongoose.Schema({
   workplacetackled: Number,
   uniquemodels: Number,
@@ -111,6 +122,8 @@ const wipSchema = new mongoose.Schema(
 );
 
 const WIP = mongoose.model("WIP", wipSchema);
+
+
 
 // ------------------------UserInfo-------------------------------
 const UserInfoSchema = new mongoose.Schema(
@@ -253,6 +266,39 @@ app.get("/api/user/info/:wipId", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+app.get("/api/user/kamai/:wipId", async (req, res) => {
+  const { wipId } = req.params;
+
+  try {
+    const wipData = await WIP.findOne({ wip_id: wipId });
+
+    if (!wipData) {
+      return res.status(404).json({ message: "WIP ID not found" });
+    }
+
+    const playerId = wipData.playerId;
+
+    if (!playerId) {
+      return res.status(404).json({ message: "Player ID not found in WIP data" });
+    }
+
+    const GeneralSaveDataKamai = await GeneralSaveData.findOne({ playerId: playerId });
+
+    if (!GeneralSaveDataKamai) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { kamai } = GeneralSaveDataKamai;
+    return res.json({ kamai });
+
+  } catch (error) {
+    console.error("Error fetching kamai data:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 
 // Start server
 app.listen(PORT, () => {
