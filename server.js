@@ -185,12 +185,18 @@ app.get("/api/user/colleges", async (req, res) => {
 
 app.get("/api/user/wip/:wipId", async (req, res) => {
   try {
-    const wipData = await WIP.find();
-    res.status(200).json(wipData);
+    const { wipId } = req.params; // Get the wipId from URL parameters
+    const wipData = await WIP.findOne({ wip_id: wipId }); // Find a single document by wipId
+    if (wipData) {
+      res.status(200).json(wipData);
+    } else {
+      res.status(404).json({ message: "WIP data not found" });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // -----------------------Get User Info by WIP ID--------------------------------
 
