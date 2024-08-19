@@ -2,8 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-// var csv = require("csv");
 const fs = require("fs");
+const { type } = require("os");
 require("dotenv").config();
 
 const app = express();
@@ -21,6 +21,7 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
+// Base route
 app.get("/", (req, res) => {
   res.send("Hello from http server");
 });
@@ -77,6 +78,7 @@ const wipSchema = new mongoose.Schema(
   {
     wip_id: { type: String },
     playerURL: { type: String },
+    playerId: { type: String },
     name: { type: String },
     designation: { type: String },
     organization: { type: String },
@@ -94,7 +96,7 @@ const wipSchema = new mongoose.Schema(
 
 const WIP = mongoose.model("WIP", wipSchema);
 
-// ------------------------Signup-------------------------------
+// ------------------------UserInfo-------------------------------
 const UserInfoSchema = new mongoose.Schema(
   {
     firstName: String,
@@ -160,43 +162,6 @@ const collegeSchema = new mongoose.Schema(
 
 const College = mongoose.model("College", collegeSchema);
 
-// fs.readFile("db/database.csv", "utf8", async (err, data) => {
-//   if (err) {
-//     console.error("Error reading the CSV file:", err);
-//     return;
-//   }
-
-//   const lines = data.split("\n");
-//   const colleges = [];
-
-//   lines.forEach((line, index) => {
-//     if (index === 0) return; // Skip header
-
-//     let collegeName = line.trim();
-
-//     if (collegeName.startsWith('"') && collegeName.endsWith('"')) {
-//       collegeName = collegeName.slice(1, -1);
-//     }
-
-//     collegeName = collegeName.replace(/\\/g, "");
-//     collegeName = collegeName.replace(/^["']+|["']+$/g, "");
-//     collegeName = collegeName.trim();
-
-//     if (collegeName) {
-//       colleges.push({ name: collegeName });
-//     }
-//   });
-
-//   try {
-//     await College.insertMany(colleges);
-//     console.log("CSV data successfully imported to database");
-//   } catch (err) {
-//     console.error("Error importing data to database:", err);
-//   } finally {
-//     mongoose.connection.close();
-//   }
-// });
-
 app.get("/api/user/colleges", async (req, res) => {
   const query = req.query.q ? req.query.q.toLowerCase() : "";
 
@@ -226,7 +191,50 @@ app.get("/api/user/wip", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// -------------------------------------------------------
+
+// -----------------------Get User Info by WIP ID--------------------------------
+
+app.get("/api/user/info/:wipId", async (req, res) => {
+  const { wipId } = req.params;
+
+  try {
+    // Step 1: Check if wip_id exists in the WIP collection
+    const wipData = await WIP.findOne({ wip_id: wipId });
+
+    if (!wipData) {
+      // console.log(`WIP ID ${wipId} not found`);
+      return res.status(404).json({ message: "WIP ID not found" });
+    }
+
+    // Debug: Print the entire wipData
+    // console.log("WIP Data:", wipData);
+
+    // Step 2: Retrieve the playerId from the WIP collection
+    const playerId = wipData.playerId;
+    // console.log(`Player ID from WIP: ${playerId}`);
+
+    if (!playerId) {
+      return res.status(404).json({ message: "Player ID not found in WIP data" });
+    }
+
+    // Step 3: Use the playerId to get the user's first and last name from the UserInfo collection
+    const userInfo = await UserInfo.findOne({ playerId });
+
+    if (!userInfo) {
+      // console.log(`User with Player ID ${playerId} not found`);
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    const { firstName, lastName } = userInfo;
+    return res.json({ firstName, lastName });
+
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 
 // Start server
 app.listen(PORT, () => {
