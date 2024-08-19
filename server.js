@@ -35,6 +35,17 @@ const TrainingStatisticsSchema = new mongoose.Schema({
   workplacesimulation: Number,
 });
 
+const AnalysisSchema = new mongoose.Schema({
+  approach_to_work: {
+    strengths: [String],
+    to_improve: [String],
+  },
+  key_traits: {
+    strengths: [String],
+    to_improve: [String],
+  },
+});
+
 const SoftSkillsSchema = new mongoose.Schema({
   skills: {
     creativeProblemSolving: Number,
@@ -84,7 +95,7 @@ const wipSchema = new mongoose.Schema(
     organization: { type: String },
     profileSummary: String,
     trainingStatistics: TrainingStatisticsSchema,
-    analysis: { type: [String] },
+    analysis: AnalysisSchema,
     badges: BadgesSchema,
     ceoInMaking: Boolean,
     jobFunction: { type: [Boolean] },
@@ -186,7 +197,8 @@ app.get("/api/user/colleges", async (req, res) => {
 app.get("/api/user/wip/:wipId", async (req, res) => {
   try {
     const { wipId } = req.params; // Get the wipId from URL parameters
-    const wipData = await WIP.findOne({ wip_id: wipId }); // Find a single document by wipId
+    const wipData = await WIP.findOne({ wip_id: wipId });
+
     if (wipData) {
       res.status(200).json(wipData);
     } else {
@@ -196,7 +208,6 @@ app.get("/api/user/wip/:wipId", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // -----------------------Get User Info by WIP ID--------------------------------
 
@@ -218,7 +229,9 @@ app.get("/api/user/info/:wipId", async (req, res) => {
     // console.log(`Player ID from WIP: ${playerId}`);
 
     if (!playerId) {
-      return res.status(404).json({ message: "Player ID not found in WIP data" });
+      return res
+        .status(404)
+        .json({ message: "Player ID not found in WIP data" });
     }
 
     const userInfo = await UserInfo.findOne({ playerId });
@@ -227,17 +240,14 @@ app.get("/api/user/info/:wipId", async (req, res) => {
       // console.log(`User with Player ID ${playerId} not found`);
       return res.status(404).json({ message: "User not found" });
     }
-    
+
     const { firstName, lastName } = userInfo;
     return res.json({ firstName, lastName });
-
   } catch (error) {
     console.error("Error fetching user info:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-
 
 // Start server
 app.listen(PORT, () => {
