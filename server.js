@@ -198,7 +198,6 @@ app.get("/api/user/info/:wipId", async (req, res) => {
   const { wipId } = req.params;
 
   try {
-    // Step 1: Check if wip_id exists in the WIP collection
     const wipData = await WIP.findOne({ wip_id: wipId });
 
     if (!wipData) {
@@ -209,7 +208,6 @@ app.get("/api/user/info/:wipId", async (req, res) => {
     // Debug: Print the entire wipData
     // console.log("WIP Data:", wipData);
 
-    // Step 2: Retrieve the playerId from the WIP collection
     const playerId = wipData.playerId;
     // console.log(`Player ID from WIP: ${playerId}`);
 
@@ -217,7 +215,6 @@ app.get("/api/user/info/:wipId", async (req, res) => {
       return res.status(404).json({ message: "Player ID not found in WIP data" });
     }
 
-    // Step 3: Use the playerId to get the user's first and last name from the UserInfo collection
     const userInfo = await UserInfo.findOne({ playerId });
 
     if (!userInfo) {
