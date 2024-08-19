@@ -85,6 +85,11 @@ const BadgesSchema = new mongoose.Schema({
   ceoinmaking: Boolean,
 });
 
+const JobFunctionSchema = new mongoose.Schema({
+  job_function: String,
+  description: String,
+});
+
 const wipSchema = new mongoose.Schema(
   {
     wip_id: { type: String },
@@ -98,7 +103,7 @@ const wipSchema = new mongoose.Schema(
     analysis: AnalysisSchema,
     badges: BadgesSchema,
     ceoInMaking: Boolean,
-    jobFunction: { type: [Boolean] },
+    jobFunction: { type: [JobFunctionSchema] },
     uniqueTraits: { type: [Boolean] },
     softskills: SoftSkillsSchema,
   },
