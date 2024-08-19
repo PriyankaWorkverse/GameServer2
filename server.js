@@ -194,7 +194,7 @@ app.get("/api/user/wip", async (req, res) => {
 
 // -----------------------Get User Info by WIP ID--------------------------------
 
-app.get("/api/user/info/:wipId", async (req, res) => {
+app.get("/api/user/info", async (req, res) => {
   const { wipId } = req.params;
 
   try {
