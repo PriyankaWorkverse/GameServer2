@@ -183,7 +183,7 @@ app.get("/api/user/colleges", async (req, res) => {
 
 // -----------------------WIP--------------------------------
 
-app.get("/api/user/wip", async (req, res) => {
+app.get("/api/user/wip/:wipId", async (req, res) => {
   try {
     const wipData = await WIP.find();
     res.status(200).json(wipData);
@@ -194,7 +194,7 @@ app.get("/api/user/wip", async (req, res) => {
 
 // -----------------------Get User Info by WIP ID--------------------------------
 
-app.get("/api/user/info", async (req, res) => {
+app.get("/api/user/info/:wipId", async (req, res) => {
   const { wipId } = req.params;
 
   try {
