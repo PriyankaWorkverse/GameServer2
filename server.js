@@ -23,12 +23,31 @@ mongoose
 
 // Base route
 app.get("/", (req, res) => {
-  res.send("Hello from http server");
+  res.send("Go away!! you are seen, I can see your exact location");
 });
 
-//-------------------------WIP---------------------------------------
+//-------------------------Video Schema---------------------------------------
 
+  const videoSchema = new mongoose.Schema({
+    videoId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    videoUrl: {
+      type: String,
+      required: true,
+    },
+    tags: [String],
+  }, { collection: "VideoBank" });
 
+  const Video = mongoose.model("Video", videoSchema);
+
+//-------------------------WIP Schema---------------------------------------
 
 const GeneralSaveDataSchema = new mongoose.Schema(
   {
@@ -90,7 +109,6 @@ const SoftSkillsSchema = new mongoose.Schema({
   exceptional: String,
 });
 
-// Define badges schema
 const BadgesSchema = new mongoose.Schema({
   smartprofessional: Boolean,
   futuremanager: Boolean,
@@ -126,7 +144,7 @@ const WIP = mongoose.model("WIP", wipSchema);
 
 
 
-// ------------------------UserInfo-------------------------------
+// ------------------------UserInfo Schema-------------------------------
 const UserInfoSchema = new mongoose.Schema(
   {
     firstName: String,
@@ -157,7 +175,27 @@ const UserInfoSchema = new mongoose.Schema(
 
 const UserInfo = mongoose.model("UserInfo", UserInfoSchema);
 
-// -----------------------Signup--------------------------------
+// -----------------------Video Api--------------------------------
+
+app.get("/api/videos/:videoId", async (req, res) => {
+  const { videoId } = req.params;
+
+  try {
+    const videoData = await Video.findOne({ videoId });
+
+    if (videoData) {
+      res.status(200).json(videoData);
+    } else {
+      res.status(404).json({ message: "Video not found" });
+    }
+  } catch (err) {
+    console.error("Error fetching video data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+// -----------------------Signup Api--------------------------------
 
 app.post("/api/user/:playerId", async (req, res) => {
   const playerId = req.params.playerId;
@@ -181,7 +219,7 @@ app.post("/api/user/:playerId", async (req, res) => {
   }
 });
 
-// --------------college list---------------
+// --------------college list Api---------------
 
 const collegeSchema = new mongoose.Schema(
   {
@@ -197,7 +235,7 @@ app.get("/api/user/colleges", async (req, res) => {
 
   try {
     const filteredColleges = await College.find({
-      name: { $regex: query, $options: "i" }, // Case-insensitive search
+      name: { $regex: query, $options: "i" }, 
     }).limit(10); // Limit results to 10
 
     if (filteredColleges.length === 0) {
@@ -211,11 +249,11 @@ app.get("/api/user/colleges", async (req, res) => {
   }
 });
 
-// -----------------------WIP--------------------------------
+// -----------------------WIP Api--------------------------------
 
 app.get("/api/user/wip/:wipId", async (req, res) => {
   try {
-    const { wipId } = req.params; // Get the wipId from URL parameters
+    const { wipId } = req.params;
     const wipData = await WIP.findOne({ wip_id: wipId });
 
     if (wipData) {
@@ -228,7 +266,7 @@ app.get("/api/user/wip/:wipId", async (req, res) => {
   }
 });
 
-// -----------------------Get User Info by WIP ID--------------------------------
+// -----------------------Get User Info by WIP ID --------------------------------
 
 app.get("/api/user/info/:wipId", async (req, res) => {
   const { wipId } = req.params;
@@ -237,16 +275,11 @@ app.get("/api/user/info/:wipId", async (req, res) => {
     const wipData = await WIP.findOne({ wip_id: wipId });
 
     if (!wipData) {
-      // console.log(`WIP ID ${wipId} not found`);
       return res.status(404).json({ message: "WIP ID not found" });
     }
 
-    // Debug: Print the entire wipData
-    // console.log("WIP Data:", wipData);
-
     const playerId = wipData.playerId;
-    // console.log(`Player ID from WIP: ${playerId}`);
-
+ 
     if (!playerId) {
       return res
         .status(404)
