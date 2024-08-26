@@ -28,7 +28,8 @@ app.get("/", (req, res) => {
 
 //-------------------------Video Schema---------------------------------------
 
-  const videoSchema = new mongoose.Schema({
+const videoSchema = new mongoose.Schema(
+  {
     videoId: {
       type: String,
       required: true,
@@ -43,9 +44,11 @@ app.get("/", (req, res) => {
       required: true,
     },
     tags: [String],
-  }, { collection: "VideoBank" });
+  },
+  { collection: "VideoBank" }
+);
 
-  const Video = mongoose.model("Video", videoSchema);
+const Video = mongoose.model("Video", videoSchema);
 
 //-------------------------WIP Schema---------------------------------------
 
@@ -57,7 +60,10 @@ const GeneralSaveDataSchema = new mongoose.Schema(
   { collection: "GeneralSaveData" }
 );
 
-const GeneralSaveData = mongoose.model("GeneralSaveData", GeneralSaveDataSchema);
+const GeneralSaveData = mongoose.model(
+  "GeneralSaveData",
+  GeneralSaveDataSchema
+);
 
 const TrainingStatisticsSchema = new mongoose.Schema({
   workplacetackled: Number,
@@ -123,7 +129,7 @@ const JobFunctionSchema = new mongoose.Schema({
 const wipSchema = new mongoose.Schema(
   {
     wip_id: { type: String },
-    playerURL: { type: String },
+    PlayerURL: { type: String },
     playerId: { type: String },
     name: { type: String },
     designation: { type: String },
@@ -141,8 +147,6 @@ const wipSchema = new mongoose.Schema(
 );
 
 const WIP = mongoose.model("WIP", wipSchema);
-
-
 
 // ------------------------UserInfo Schema-------------------------------
 const UserInfoSchema = new mongoose.Schema(
@@ -164,6 +168,7 @@ const UserInfoSchema = new mongoose.Schema(
     yearOfExp: Number,
     designation: String,
     highestEducation: String,
+    companyName: String,
     gameLiteracy: String,
     playerId: { type: String, required: true },
     locationState: String,
@@ -193,7 +198,6 @@ app.get("/api/videos/:videoId", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 // -----------------------Signup Api--------------------------------
 
@@ -225,7 +229,7 @@ const collegeSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
   },
-  { collection: "collegeList" }
+  { collection: "formCollegeList" }
 );
 
 const College = mongoose.model("College", collegeSchema);
@@ -235,11 +239,11 @@ app.get("/api/user/colleges", async (req, res) => {
 
   try {
     const filteredColleges = await College.find({
-      name: { $regex: query, $options: "i" }, 
-    }).limit(10); // Limit results to 10
+      name: { $regex: query, $options: "i" },
+    });
 
     if (filteredColleges.length === 0) {
-      return res.status(201).json({ error: "No college data available" });
+      return res.json([]);
     }
 
     res.json(filteredColleges.map((college) => college.name));
@@ -279,7 +283,7 @@ app.get("/api/user/info/:wipId", async (req, res) => {
     }
 
     const playerId = wipData.playerId;
- 
+
     if (!playerId) {
       return res
         .status(404)
@@ -301,7 +305,6 @@ app.get("/api/user/info/:wipId", async (req, res) => {
   }
 });
 
-
 app.get("/api/user/kamai/:wipId", async (req, res) => {
   const { wipId } = req.params;
 
@@ -315,24 +318,26 @@ app.get("/api/user/kamai/:wipId", async (req, res) => {
     const playerId = wipData.playerId;
 
     if (!playerId) {
-      return res.status(404).json({ message: "Player ID not found in WIP data" });
+      return res
+        .status(404)
+        .json({ message: "Player ID not found in WIP data" });
     }
 
-    const GeneralSaveDataKamai = await GeneralSaveData.findOne({ playerId: playerId });
+    const GeneralSaveDataKamai = await GeneralSaveData.findOne({
+      playerId: playerId,
+    });
 
     if (!GeneralSaveDataKamai) {
       return res.status(404).json({ message: "User not found" });
     }
 
     const { kamai, playerBadgeData } = GeneralSaveDataKamai;
-    return res.json({ kamai , playerBadgeData});
-
+    return res.json({ kamai, playerBadgeData });
   } catch (error) {
     console.error("Error fetching kamai data:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
 
 // Start server
 app.listen(PORT, () => {
