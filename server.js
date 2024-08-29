@@ -164,6 +164,7 @@ const UserInfoSchema = new mongoose.Schema(
     yearOfExp: Number,
     designation: String,
     highestEducation: String,
+    companyName: String,
     gameLiteracy: String,
     playerId: { type: String, required: true },
     locationState: String,
@@ -225,7 +226,7 @@ const collegeSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
   },
-  { collection: "collegeList" }
+  { collection: "formCollegeList" }
 );
 
 const College = mongoose.model("College", collegeSchema);
@@ -236,10 +237,10 @@ app.get("/api/user/colleges", async (req, res) => {
   try {
     const filteredColleges = await College.find({
       name: { $regex: query, $options: "i" }, 
-    }).limit(10); // Limit results to 10
+    })
 
     if (filteredColleges.length === 0) {
-      return res.status(201).json({ error: "No college data available" });
+      return res.json([]);
     }
 
     res.json(filteredColleges.map((college) => college.name));
