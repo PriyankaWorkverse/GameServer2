@@ -200,26 +200,18 @@ app.get("/api/videos/:videoId", async (req, res) => {
 
 app.post("/api/users/emails/:email", async (req, res) => {
   const email = req.params.email; // Get email from the URL
-
   const formData = { email, registered: 1 };
-
   try {
-    const existingUser = await WebsiteEmails.findOne({ email });
-
-    if (existingUser) {
-      // Update the existing user's email data
-      await UserInfo.updateOne({ email: email }, { $set: formData });
-      res.status(200).json({ message: "Email updated successfully" });
-    } else {
-      // Create a new user with the email
-      const newUser = new UserInfo(formData);
-      const savedUser = await newUser.save();
-      res.status(201).json(savedUser);
-    }
+    // Always create a new document regardless of whether the email exists
+    const newUser = new WebsiteEmails(formData);
+    const savedUser = await newUser.save();
+    
+    res.status(201).json(savedUser);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
+
 
 // -----------------------Signup Api--------------------------------
 
