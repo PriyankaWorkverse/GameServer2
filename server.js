@@ -47,6 +47,18 @@ app.get("/", (req, res) => {
 
   const Video = mongoose.model("Video", videoSchema);
 
+//-------------------------Website email Schema---------------------------------------
+
+  const WebsiteEmailsSchema = new mongoose.Schema(
+    {
+      email: { type: String, required: true, unique: true },
+      registered: { type: Number, default: 1 },
+    },
+    { collection: "WebsiteEmails" }
+  );
+  
+  const WebsiteEmails = mongoose.model("WebsiteEmails", WebsiteEmailsSchema);
+
 //-------------------------WIP Schema---------------------------------------
 
 const GeneralSaveDataSchema = new mongoose.Schema(
